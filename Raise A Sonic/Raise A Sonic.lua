@@ -218,7 +218,7 @@ local Toggle =
     }
 )
 
-local Section = Tab:CreateSection("Caring For Floppa")
+local Section = Tab:CreateSection("Caring For Sonic")
 local Toggle = Tab:CreateToggle({
 	Name = "Auto Feed",
 	CurrentValue = false,
