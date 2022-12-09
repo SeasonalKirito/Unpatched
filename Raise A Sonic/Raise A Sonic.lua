@@ -74,58 +74,17 @@ have a good day.
 ]]--
 
 getgenv().autoFeed = false
+getgenv().autoRaiseRent = false
+getgenv().SecureMode = true
 
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-repeat
-    task.wait()
-until game:GetService("Players") and game:GetService("Workspace") and game:GetService("ReplicatedStorage") and
-    game:GetService("UserInputService")
 
-getgenv().SecureMode = false
 local LocalPlayer = game:GetService("Players").LocalPlayer
-_G.objs = {}
-
-getgenv().spoof = function(obj, property, value)
-	local s = pcall(function()
-		local lol = obj[property]
-	end)
-	if s then
-		table.insert(_G.objs, {obj, property, value})
-	end
-end
-
-getgenv().findwithintable = function(o, p)
-	for i, v in pairs(_G.objs) do
-		if table.find(v, o) and table.find(v, p) then
-			return v
-		end
-	end
-	return nil
-end
-
-getgenv().unspoof = function(obj, property)
-	local lol = findwithintable(obj, property)
-	if lol then
-		table.remove(_G.objs, table.find(_G.objs, lol))
-	end
-end
 
 
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
-old = mt.__index
 
-mt.__index = newcclosure(function(o, p)
-	local t = findwithintable(o, p)
-	if t ~= nil then
-		return t[3]
-	end
-	
-	return old(o, p)
-end)
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
+
+
 
 local function returnHRP()
     if not LocalPlayer.Character then
@@ -137,6 +96,9 @@ local function returnHRP()
         return LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     end
 end
+
+
+
 local function returnHUM()
     if not LocalPlayer.Character then
         return
@@ -150,6 +112,8 @@ end
 repeat
     task.wait()
 until returnHRP() and returnHUM()
+
+
 
 local Window =
     Rayfield:CreateWindow(
@@ -207,7 +171,7 @@ local Toggle =
             Toggle_AutoCollectCash = Value
             while Toggle_AutoCollectCash and task.wait() do
             	for _,v in ipairs(workspace:GetChildren()) do
-                    if v.Name == "Ring" then
+                    if v.Name == "Ring" or v.Name == "SpecialRing"then
                         firetouchinterest(v, returnHRP(), 0)
                         wait()
                         firetouchinterest(v, returnHRP(), 1)
@@ -231,6 +195,18 @@ local Toggle = Tab:CreateToggle({
 	end,
 })
 
+local Toggle = Tab:CreateToggle({
+	Name = "Auto Raise Rent",
+	CurrentValue = false,
+	Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Value)
+        getgenv().autoRaiseRent = Value
+        if Value then
+            autoRaiseRent(autoRaiseRent)
+        end
+	end,
+})
+
 ---AUTO FEED---
 
 function autoFeed(autoFeed)
@@ -246,4 +222,49 @@ function autoFeed(autoFeed)
     end)
 end
 
----         ---
+---         ---    
+
+
+
+---AUTO RAISE RENT---
+
+function autoRaiseRent(autoRaiseRent)
+    spawn(function()
+        while getgenv().autoRaiseRent == true do
+            local args = {
+                [1] = "Get"
+                    }
+                game:GetService("ReplicatedStorage").RentEvent:FireServer(unpack(args))
+            wait(1)
+        end
+    end)
+end
+
+---            ---
+
+
+
+local Tab = Window:CreateTab("Teleports", 4483362458) -- Title, Image
+
+local Section = Tab:CreateSection("Teleportation")
+
+local Button = Tab:CreateButton({
+    Name = "Teleport Outside",
+    Callback = function()
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2.8126840591430664, -33.35207748413086, -61.60068893432617)
+    end,
+ })
+
+local Button = Tab:CreateButton({
+    Name = "Teleport Inside House",
+    Callback = function()
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-0.23755022883415222, -32.8463020324707, -3.151376247406006)
+    end,
+ })
+
+local Button = Tab:CreateButton({
+    Name = "Destroy GUI",
+    Callback = function()
+        Rayfield:Destroy()
+    end,
+ })
